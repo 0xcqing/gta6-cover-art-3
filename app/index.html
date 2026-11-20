@@ -1,23 +1,154 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
-<link rel="stylesheet" href="./style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Coastline Heat — Palm Coast Cover Studio</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
-<script type="module" src="./src/main.js"></script>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">PC</span>
+      <span class="brand-name">
+        <strong>PALM COAST</strong>
+        <small>COVER STUDIO</small>
+      </span>
+    </div>
+    <div class="topbar-rule"></div>
+    <div class="live-pill"><i></i> LIVE CANVAS <span>OFFLINE READY</span></div>
+    <div class="topbar-note">DROP PHOTOS ANYWHERE</div>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel left-panel">
+      <section class="panel-block">
+        <div class="block-heading">
+          <span class="step">01</span>
+          <h2>YOUR SHOTS</h2>
+          <span class="count" id="photoCount">0</span>
+        </div>
+        <p class="helper">Pick a frame, then choose its photo.</p>
+        <div class="frame-slots" id="frameSlots" aria-label="Poster frames"></div>
+        <div class="photo-tools">
+          <label class="upload-button">
+            <span>+ ADD PHOTOS</span>
+            <input id="fileInput" type="file" accept="image/*" multiple>
+          </label>
+          <button class="ghost-button" id="clearFrame" type="button">CLEAR FRAME</button>
+        </div>
+        <div class="library-label"><span>PHOTO LIBRARY</span><span>CLICK TO USE</span></div>
+        <div class="library" id="library"></div>
+      </section>
+
+      <section class="panel-block words-block">
+        <div class="block-heading">
+          <span class="step">02</span>
+          <h2>THE WORDS</h2>
+        </div>
+        <label class="field">
+          <span>CAPTION</span>
+          <input id="caption" type="text" maxlength="34" value="COASTLINE HEAT" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>SUBTITLE</span>
+          <input id="subtitle" type="text" maxlength="64" value="A PALM COAST PICTURES PRODUCTION" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="preset-row" id="presetRow" aria-label="Caption presets"></div>
+      </section>
+    </aside>
+
+    <section class="stage-column">
+      <div class="stage-toolbar">
+        <div class="stage-kicker">MOSAIC <span id="formatRatio">1:1</span></div>
+        <div class="format-tabs" id="formatTabs" role="group" aria-label="Poster shape">
+          <button type="button" data-format="portrait">4:5</button>
+          <button type="button" data-format="square" class="active">1:1</button>
+          <button type="button" data-format="landscape">16:9</button>
+        </div>
+        <div class="selection-chip" id="selectionChip">HERO SELECTED</div>
+      </div>
+      <div class="stage" id="stage">
+        <div class="stage-corner top-left"></div>
+        <div class="stage-corner top-right"></div>
+        <div class="stage-corner bottom-left"></div>
+        <div class="stage-corner bottom-right"></div>
+        <canvas id="poster" width="1080" height="1080" aria-label="Live four frame cover art poster"></canvas>
+      </div>
+      <div class="stage-footer">
+        <span>DRAG TO MOVE <b>·</b> SCROLL TO ZOOM</span>
+        <span id="canvasDims">1080 × 1080</span>
+      </div>
+    </section>
+
+    <aside class="panel right-panel">
+      <section class="panel-block">
+        <div class="block-heading">
+          <span class="step">03</span>
+          <h2>FRAME</h2>
+          <span class="count" id="frameTag">HERO</span>
+        </div>
+        <div class="selected-preview">
+          <div class="selected-image" id="selectedImage"><span>01</span></div>
+          <div class="selected-copy">
+            <span class="micro">SELECTED FRAME</span>
+            <h3 id="selectedTitle">HERO FRAME</h3>
+            <p id="selectedPhoto">No photo yet</p>
+          </div>
+        </div>
+
+        <div class="segmented" id="modeTabs" role="group" aria-label="Photo fit">
+          <button type="button" data-mode="fill" class="active">FILL</button>
+          <button type="button" data-mode="fit">FIT</button>
+        </div>
+
+        <div class="range-head"><span>ZOOM</span><output id="zoomValue">100%</output></div>
+        <input class="zoom-range" id="zoom" type="range" min="100" max="400" step="1" value="100">
+        <div class="range-scale"><span>1×</span><span>4×</span></div>
+
+        <label class="field compact">
+          <span>REUSE PHOTO FROM</span>
+          <select id="borrowSelect">
+            <option value="">Choose a frame</option>
+          </select>
+        </label>
+
+        <div class="mini-actions">
+          <button type="button" id="resetCrop">RESET CROP</button>
+          <button type="button" id="removePhoto">REMOVE PHOTO</button>
+        </div>
+      </section>
+
+      <section class="panel-block export-block">
+        <div class="block-heading">
+          <span class="step">04</span>
+          <h2>OUTPUT</h2>
+          <span class="count">PNG</span>
+        </div>
+        <label class="field compact">
+          <span>POSTER SIZE</span>
+          <select id="sizeSelect">
+            <option value="portrait">Portrait · 1080 × 1350</option>
+            <option value="square" selected>Square · 1080 × 1080</option>
+            <option value="landscape">Landscape · 1920 × 1080</option>
+          </select>
+        </label>
+        <div class="output-note"><span>OFFLINE EXPORT</span><span id="outputDims">1080 × 1080</span></div>
+        <button class="export-button" id="exportBtn" type="button">EXPORT PNG <span>↓</span></button>
+        <p class="status" id="status" role="status">Ready · no network needed</p>
+      </section>
+    </aside>
+  </main>
+
+  <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+    <div class="drop-card">
+      <span>DROP TO ENTER</span>
+      <strong>ADD PHOTOS</strong>
+      <small>JPG · PNG · WEBP · LOCAL ONLY</small>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
